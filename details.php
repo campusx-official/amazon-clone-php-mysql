@@ -4,12 +4,20 @@
 
 	if(!empty($_SESSION)){
 		$is_logged_in = 1;
+		
+		$user_id = $_SESSION['user_id'];
+		// run a query
+		$query2 = "SELECT * FROM wishlist WHERE user_id = $user_id AND product_id = $product_id";
+		$result2 = mysqli_query($conn,$query2);
+		$num_rows = mysqli_num_rows($result2);
+
+		$query3 = "SELECT * FROM cart WHERE user_id = $user_id AND product_id = $product_id";
+		$result3 = mysqli_query($conn,$query3);
+		$num_rows2 = mysqli_num_rows($result3);
 	}else{
 		$is_logged_in = 0;
 	}
-
 	$product_id = $_GET['id'];
-
 	//fetch details of the product
 	$query = "SELECT * FROM products WHERE product_id = $product_id";
 	$result = mysqli_query($conn,$query);
@@ -19,15 +27,7 @@
 	$img_path = explode(",", $result['bg'])[0];
 	$img_path = substr($img_path, 2,strlen($img_path)-3);
 
-	$user_id = $_SESSION['user_id'];
-	// run a query
-	$query2 = "SELECT * FROM wishlist WHERE user_id = $user_id AND product_id = $product_id";
-	$result2 = mysqli_query($conn,$query2);
-	$num_rows = mysqli_num_rows($result2);
-
-	$query3 = "SELECT * FROM cart WHERE user_id = $user_id AND product_id = $product_id";
-	$result3 = mysqli_query($conn,$query3);
-	$num_rows2 = mysqli_num_rows($result3);
+	
 ?>
 <?php include("includes/header.php"); ?>
 
@@ -41,17 +41,26 @@
 				<h4>Rs <?php echo $result['price']; ?></h4>
 				<p><?php echo $result['details']; ?></p>
 				<?php
-				if($num_rows2){
+				if($is_logged_in){
+					if($num_rows2){
 					echo '<button class="btn btn-lg" style="background-color:red">Added to Cart</button>';
+					}else{
+						echo '<button id="cart-btn" class="btn btn-lg btn-primary">Add to Cart</button>';
+					}
 				}else{
-					echo '<button id="cart-btn" class="btn btn-lg btn-primary">Add to Cart</button>';
+					echo '<a href="login_form.php" class="btn btn-lg btn-primary">Add to Cart</a>';
 				}
-
-				if($num_rows){
+				
+				if($is_logged_in){
+					if($num_rows){
 					echo '<button class="btn btn-lg btn-dark" style="background-color:blue">Wishlisted</button>';
+					}else{
+						echo '<button id="wishlist-btn" class="btn btn-lg btn-dark">Wishlist</button>';
+					}
 				}else{
-					echo '<button id="wishlist-btn" class="btn btn-lg btn-dark">Wishlist</button>';
+					echo '<a href="login_form.php" class="btn btn-lg btn-dark">Wishlist</a>';
 				}
+				
 				?>
 				
 			</div>
